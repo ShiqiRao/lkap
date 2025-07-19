@@ -1,6 +1,6 @@
 {
   "name": "lkap",
-  "displayName": "Link Knowledge And Plan",
+  "displayName": "Lkap Note Manager",
   "description": "A powerful VSCode extension for managing markdown notes with daily notes, bidirectional links, and tag management",
   "version": "0.1.0",
   "publisher": "lkap",

@@ -18,7 +18,7 @@ export class DailyNoteManager {
    * 获取扩展配置
    */
   private getConfig(): ExtensionConfig {
-    const config = vscode.workspace.getConfiguration('markdownNoteManager');
+    const config = vscode.workspace.getConfiguration('lkap');
     return {
       notesPath: config.get<string>('notesPath', './notes'),
       dailyNoteFormat: config.get<string>('dailyNoteFormat', 'YYYY-MM-DD'),
@@ -254,7 +254,7 @@ export function registerDailyNoteCommands(context: vscode.ExtensionContext) {
 
   // 创建今日日记命令
   const createTodayNoteCommand = vscode.commands.registerCommand(
-    'markdownNoteManager.createDailyNote',
+    'lkap.createDailyNote',
     () => dailyNoteManager.createTodayNote()
   );
 

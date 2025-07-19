@@ -1,128 +1,151 @@
-# Link Knowledge And Plan - VSCode Extension
+# Link Knowledge And Plan (LKAP)
 
-一个功能强大的 VSCode 扩展，专为 markdown 格式的笔记管理而设计。
+A powerful VSCode extension for managing Markdown notes with daily note creation, bidirectional linking, and tag management.
 
-## ✨ 主要功能
+**🌏 [中文文档](./README-CN.md)**
 
-### 📅 快速创建日记
-- **快捷键操作**: 通过自定义快捷键快速创建当天的笔记文件
-- **智能跳转**: 如果当天的笔记已存在，将直接跳转到该文件
-- **文件命名**: 支持自定义日期格式（如 `2024-01-15.md`、`2024/01/15.md` 等）
+## 🚀 Features
 
-### 🔗 双向链接
-- **Wiki 链接**: 支持 `[[title]]` 语法创建双向链接
-- **自动创建**: 点击不存在的链接时自动创建对应的 markdown 文件
-- **反向链接**: 在文件中显示所有指向当前文件的反向链接
-- **链接预览**: 悬停显示链接目标文件的预览内容
+### ✅ Implemented Features
 
-### 🏷️ 标签管理
-- **标签语法**: 支持 `#tag` 或 `@tag` 语法为文档添加标签
-- **标签面板**: 在侧边栏显示所有标签和相关文件
-- **标签筛选**: 通过标签快速筛选和查找相关笔记
-- **标签统计**: 显示每个标签下的文件数量
+#### 📝 Quick Daily Note Creation
+- **Shortcut**: `Ctrl+Shift+T` (Windows/Linux) or `Cmd+Shift+T` (Mac)
+- **Command**: "Create Today's Note"
+- Automatically creates note files named with today's date
+- Supports custom date formats
+- Smart template system with variable substitution
+- Opens existing notes directly if they already exist
 
-## 🚀 安装使用
+### 🔧 Configuration Options
 
-### 安装方式
-1. 在 VSCode 扩展市场搜索 "Markdown Note Manager"
-2. 点击安装并重启 VSCode
-3. 或者下载 `.vsix` 文件手动安装
+Search for "lkap" in VSCode settings to find the following configuration options:
 
-### 快速开始
-1. **设置笔记目录**: 在设置中配置笔记存储路径
-2. **创建日记**: 使用快捷键 `Ctrl+Shift+T` (Windows/Linux) 或 `Cmd+Shift+T` (Mac)
-3. **添加链接**: 在文档中输入 `[[文件名]]` 创建双向链接
-4. **添加标签**: 在文档中使用 `#标签名` 为文档分类
+- **Notes Storage Path** (`lkap.notesPath`): Default `./notes`
+- **Date Format** (`lkap.dailyNoteFormat`): Default `YYYY-MM-DD`
+- **Daily Note Template** (`lkap.dailyNoteTemplate`): Custom template file path
+- **Auto Create Links** (`lkap.autoCreateLinks`): Default `true`
+- **Enable Indexing** (`lkap.enableIndexing`): Default `true`
 
-## ⚙️ 配置选项
+## 📋 Usage Guide
 
-```json
-{
-  "linkKnowledgeAndPlan.dailyNotesPath": "./dailyNotes",
-  "linkKnowledgeAndPlan.dailyNoteFormat": "YYYY-MM-DD",
-  "linkKnowledgeAndPlan.autoCreateLinks": true,
-  "linkKnowledgeAndPlan.tagPrefix": "#",
-  "linkKnowledgeAndPlan.showBacklinks": true,
-  "linkKnowledgeAndPlan.linkPreview": true
-}
+### Creating Daily Notes
+
+1. **Method 1**: Use shortcut `Ctrl+Shift+T` (Windows/Linux) or `Cmd+Shift+T` (Mac)
+2. **Method 2**: Open command palette (`Ctrl+Shift+P`), type "Create Today's Note"
+3. The extension will automatically create today's note file in the configured notes directory
+
+### Custom Templates
+
+1. Create a template file in your workspace, e.g., `templates/daily-note.md`
+2. Set `lkap.dailyNoteTemplate` in settings to your template file path
+3. Templates support the following variables:
+   - `{{date}}`: Date (YYYY-MM-DD)
+   - `{{dayOfWeek}}`: Day of week (Monday, Tuesday, ...)
+   - `{{timestamp}}`: Full timestamp
+   - `{{year}}`: Year
+   - `{{month}}`: Month
+   - `{{day}}`: Day
+   - `{{time}}`: Time (HH:mm:ss)
+
+### Example Template
+
+```markdown
+# {{date}} - {{dayOfWeek}}
+
+## 🎯 Today's Goals
+- [ ] 
+
+## 📝 Work Log
+
+
+## 📚 Learning Notes
+
+
+## 💭 Random Thoughts
+
+
+---
+*Created at: {{time}}*
 ```
 
-### 配置说明
-- `notesPath`: 笔记文件存储路径
-- `dailyNoteFormat`: 日记文件名的日期格式
-- `autoCreateLinks`: 是否自动创建不存在的链接文件
-- `tagPrefix`: 标签前缀符号（# 或 @）
-- `showBacklinks`: 是否显示反向链接
-- `linkPreview`: 是否启用链接悬停预览
+## 🛠️ Development
 
-## 📁 文件结构示例
+### Environment Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Compile code: `npm run compile`
+4. Press F5 to start debugging
+
+### Project Structure
 
 ```
-notes/
-├── 2024-01-15.md          # 日记文件
-├── 项目管理.md            # 笔记文件
-├── 学习笔记.md            # 笔记文件
-└── .obsidian/             # 配置文件夹（可选）
-    └── graph.json         # 图谱配置
+src/
+├── extension.ts              # Extension entry point
+├── commands/                 # Command implementations
+│   └── dailyNote.ts         # Daily note commands
+├── utils/                   # Utility functions
+│   ├── fileUtils.ts         # File operations
+│   └── dateUtils.ts         # Date handling
+└── types/                   # Type definitions
+    └── index.ts            # Common types
 ```
 
-## 🔧 开发与贡献
+## 🗓️ Development Roadmap
 
-### 技术栈
-- TypeScript
-- VSCode Extension API
-- Node.js
+### Phase 1: Basic Features ✅
+- [x] Project setup and environment configuration
+- [x] Quick daily note creation feature
+- [ ] Basic bidirectional linking support
+- [ ] Simple tag parsing
+- [ ] Basic indexing system design
+- [ ] File discovery and parser implementation
 
-### 本地开发
-```bash
-# 克隆项目
-git clone <repository-url>
+### Phase 2: Core Features (In Progress)
+- [ ] Link auto-completion and navigation
+- [ ] Backlink display
+- [ ] Tag tree view
+- [ ] Configuration management interface
+- [ ] Complete index manager implementation
+- [ ] Incremental index updates
+- [ ] Index persistence and caching
 
-# 安装依赖
-npm install
+### Phase 3: Advanced Features (Planned)
+- [ ] Link preview and hover display
+- [ ] Tag batch operations
+- [ ] Template system
+- [ ] Search and filtering
+- [ ] Index performance optimization
+- [ ] Concurrent processing and memory management
+- [ ] Index integrity validation
 
-# 开始开发
-npm run dev
+### Phase 4: Optimization and Release (Planned)
+- [ ] Performance optimization
+- [ ] User experience improvements
+- [ ] Documentation completion
+- [ ] Extension marketplace release
+- [ ] Index performance benchmarking
+- [ ] Large-scale note library testing
 
-# 构建扩展
-npm run build
+## 📄 License
 
-# 打包
-npm run package
-```
+MIT License
 
-### 贡献指南
-1. Fork 本仓库
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
+## 🤝 Contributing
 
-## 📝 更新日志
+Issues and Pull Requests are welcome!
 
-### v1.0.0 (计划中)
-- ✅ 快速创建日记功能
-- ✅ 双向链接支持
-- ✅ 标签管理系统
-- ✅ 基础配置选项
+## 📞 Support
 
-### 未来计划
-- 📊 笔记关系图谱可视化
-- 🔍 全文搜索功能
-- 📄 模板系统
-- 🌙 夜间模式支持
-- 📱 移动端同步
+If you encounter any issues while using this extension:
+1. Check the FAQ section in this documentation
+2. Submit an Issue on GitHub
+3. Check the VSCode Developer Console output
 
-## 📄 许可证
+## 🌟 Acknowledgments
 
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 💬 反馈与支持
-
-- 🐛 [报告 Bug](https://github.com/username/markdown-note-manager/issues)
-- 💡 [功能建议](https://github.com/username/markdown-note-manager/discussions)
-- 📧 邮箱：support@example.com
+This project is inspired by popular note-taking tools like Obsidian and Roam Research, aiming to bring similar functionality to the VSCode environment.
 
 ---
 
-**喜欢这个扩展？给我们一个 ⭐ 吧！**
+**Like this extension? Give us a ⭐ on GitHub!** 
