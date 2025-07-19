@@ -144,22 +144,21 @@ export class DailyNoteManager {
     const vars = DateUtils.getDailyNoteTemplateVars(date);
     const relativeDateDesc = DateUtils.getRelativeDateDescription(date);
 
-    return `# ${dateString} - ${relativeDateDesc}
+    return `# ${dateString}
 
-## 📝 今日计划
-
-
-## 📚 学习笔记
+## 📝 Todo
 
 
-## 💭 思考记录
+## 📚 Note
 
 
-## 🔗 相关链接
+## 💭 Thinking
+
+
+## 🔗 Link
 
 
 ---
-*创建时间: ${vars.time}*
 `;
   }
 

@@ -15,4 +15,6 @@ node_modules/**
 .eslintrc.json
 tsconfig.json
 test-workspace/**
-resources/icons/*.svg 
+resources/icons/*.svg
+scripts/**
+esbuild.js 
