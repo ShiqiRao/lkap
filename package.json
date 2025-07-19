@@ -1,0 +1,117 @@
+{
+  "name": "lkap",
+  "displayName": "Link Knowledge And Plan",
+  "description": "A powerful VSCode extension for managing markdown notes with daily notes, bidirectional links, and tag management",
+  "version": "0.1.0",
+  "publisher": "lkap",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "notes",
+    "wiki",
+    "knowledge",
+    "linking",
+    "daily",
+    "journal"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "lkap.createDailyNote",
+        "title": "Create Today's Note",
+        "category": "Markdown Note Manager"
+      },
+      {
+        "command": "lkap.openNote",
+        "title": "Open Note",
+        "category": "Markdown Note Manager"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "lkap.createDailyNote",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "Link Knowledge And Plan",
+      "properties": {
+        "lkap.notesPath": {
+          "type": "string",
+          "default": "./notes",
+          "description": "Path to store note files (relative to workspace root)"
+        },
+        "lkap.dailyNoteFormat": {
+          "type": "string",
+          "default": "YYYY-MM-DD",
+          "description": "Date format for daily notes (using moment.js format)"
+        },
+        "lkap.dailyNoteTemplate": {
+          "type": "string",
+          "default": "",
+          "description": "Path to daily note template file (relative to workspace root)"
+        },
+        "lkap.autoCreateLinks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically create missing link targets"
+        },
+        "lkap.enableIndexing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic indexing of notes"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "lkap.tagView",
+          "name": "Tags",
+          "when": "lkap.enabled"
+        },
+        {
+          "id": "lkap.backlinksView",
+          "name": "Backlinks",
+          "when": "lkap.enabled"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "@types/moment": "^2.13.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "typescript": "^4.9.4",
+    "@vscode/test-electron": "^2.2.0",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "moment": "^2.29.4",
+    "glob": "^8.0.3"
+  }
+} 
