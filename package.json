@@ -3,9 +3,9 @@
   "displayName": "Link Knowledge And Plan (LKAP)",
   "description": "A powerful VSCode extension for managing Markdown notes with daily note creation, bidirectional linking, and tag management",
   "version": "0.1.0",
-  "publisher": "Shiqi Rao",
+  "publisher": "ShiqiRao",
   "author": {
-    "name": "Shiqi Rao"
+    "name": "ShiqiRao"
   },
   "license": "MIT",
   "homepage": "https://github.com/ShiqiRao/lkap#readme",
