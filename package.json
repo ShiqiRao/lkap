@@ -1,14 +1,32 @@
 {
   "name": "lkap",
-  "displayName": "Lkap Note Manager",
-  "description": "A powerful VSCode extension for managing markdown notes with daily notes, bidirectional links, and tag management",
+  "displayName": "Link Knowledge And Plan (LKAP)",
+  "description": "A powerful VSCode extension for managing Markdown notes with daily note creation, bidirectional linking, and tag management",
   "version": "0.1.0",
-  "publisher": "lkap",
+  "publisher": "Shiqi Rao",
+  "author": {
+    "name": "Shiqi Rao"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ShiqiRao/lkap#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShiqiRao/lkap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ShiqiRao/lkapissues"
+  },
+  "icon": "resources/icons/icon.png",
+  "galleryBanner": {
+    "color": "#2196F3",
+    "theme": "light"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Notebooks"
   ],
   "keywords": [
     "markdown",
@@ -17,7 +35,10 @@
     "knowledge",
     "linking",
     "daily",
-    "journal"
+    "journal",
+    "obsidian",
+    "roam",
+    "note-taking"
   ],
   "activationEvents": [
     "onLanguage:markdown"
@@ -28,12 +49,12 @@
       {
         "command": "lkap.createDailyNote",
         "title": "Create Today's Note",
-        "category": "Markdown Note Manager"
+        "category": "LKAP"
       },
       {
         "command": "lkap.openNote",
         "title": "Open Note",
-        "category": "Markdown Note Manager"
+        "category": "LKAP"
       }
     ],
     "keybindings": [
@@ -45,32 +66,37 @@
       }
     ],
     "configuration": {
-      "title": "Link Knowledge And Plan",
+      "title": "Link Knowledge And Plan (LKAP)",
       "properties": {
         "lkap.notesPath": {
           "type": "string",
           "default": "./notes",
-          "description": "Path to store note files (relative to workspace root)"
+          "description": "Path to store note files (relative to workspace root)",
+          "scope": "resource"
         },
         "lkap.dailyNoteFormat": {
           "type": "string",
           "default": "YYYY-MM-DD",
-          "description": "Date format for daily notes (using moment.js format)"
+          "description": "Date format for daily notes (using moment.js format)",
+          "scope": "resource"
         },
         "lkap.dailyNoteTemplate": {
           "type": "string",
           "default": "",
-          "description": "Path to daily note template file (relative to workspace root)"
+          "description": "Path to daily note template file (relative to workspace root)",
+          "scope": "resource"
         },
         "lkap.autoCreateLinks": {
           "type": "boolean",
           "default": true,
-          "description": "Automatically create missing link targets"
+          "description": "Automatically create missing link targets",
+          "scope": "resource"
         },
         "lkap.enableIndexing": {
           "type": "boolean",
           "default": true,
-          "description": "Enable automatic indexing of notes"
+          "description": "Enable automatic indexing of notes",
+          "scope": "resource"
         }
       }
     },
@@ -97,7 +123,8 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "package": "vsce package",
-    "publish": "vsce publish"
+    "publish": "vsce publish",
+    "prepare-publish": "node scripts/prepare-publish.js"
   },
   "devDependencies": {
     "@types/vscode": "^1.74.0",
@@ -108,7 +135,7 @@
     "eslint": "^8.28.0",
     "typescript": "^4.9.4",
     "@vscode/test-electron": "^2.2.0",
-    "vsce": "^2.15.0"
+    "@vscode/vsce": "^2.15.0"
   },
   "dependencies": {
     "moment": "^2.29.4",
