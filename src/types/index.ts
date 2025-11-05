@@ -22,6 +22,15 @@ export interface ParsedLink {
 }
 
 /**
+ * 链接引用信息（用于元数据解析）
+ */
+export interface LinkReference {
+  name: string;
+  path: string;
+  title?: string;
+}
+
+/**
  * 解析后的标签信息
  */
 export interface ParsedTag {

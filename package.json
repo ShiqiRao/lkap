@@ -55,6 +55,21 @@
         "command": "lkap.openNote",
         "title": "Open Note",
         "category": "LKAP"
+      },
+      {
+        "command": "lkap.followLink",
+        "title": "Follow Link at Cursor",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.refreshBacklinks",
+        "title": "Refresh Backlinks",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.rebuildLinkIndex",
+        "title": "Rebuild Link Index",
+        "category": "LKAP"
       }
     ],
     "keybindings": [
@@ -63,6 +78,12 @@
         "key": "ctrl+shift+t",
         "mac": "cmd+shift+t",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "lkap.followLink",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId == markdown"
       }
     ],
     "configuration": {
