@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { LinkParser } from './linkParser';
-import { ParsedLink, IndexStatus } from '../types';
+import { FileUtils } from './fileUtils';
+import { GlobalLinkReferencesImpl } from './globalLinkReferences';
+import { ParsedLink, IndexStatus, LinkReference, GlobalLinkReferences } from '../types';
 
 /**
  * Manages the index of links between notes
@@ -14,6 +16,9 @@ export class LinkIndexManager {
   private forwardLinks: Map<string, ParsedLink[]> = new Map(); // sourceFile -> outgoing links
   private backlinks: Map<string, ParsedLink[]> = new Map();    // targetFile -> incoming links
 
+  // Global link references (metadata from all documents)
+  private globalLinkReferences: GlobalLinkReferences = new GlobalLinkReferencesImpl();
+
   // Index status
   private indexStatus: IndexStatus = {
     isBuilding: false,
@@ -23,7 +28,7 @@ export class LinkIndexManager {
   };
 
   // Event emitters
-  private _onIndexUpdated = new vscode.EventEmitter<void>();
+  private _onIndexUpdated = new vscode.EventEmitter<{ complete: boolean }>();
   readonly onIndexUpdated = this._onIndexUpdated.event;
 
   private _onBacklinksChanged = new vscode.EventEmitter<string>();
@@ -57,46 +62,55 @@ export class LinkIndexManager {
 
     try {
       this.indexStatus.isBuilding = true;
+      this.indexStatus.indexedFiles = 0;
       this._onIndexUpdated.fire(); // Notify that indexing started
 
       // Clear existing index
       this.forwardLinks.clear();
       this.backlinks.clear();
+      this.globalLinkReferences = new GlobalLinkReferencesImpl();
 
-      // Find all links in the workspace
-      const allLinks = await LinkParser.findAllLinks();
+      console.log('Building index - Phase 1: Extracting link references...');
 
-      // Update index status
-      this.indexStatus.totalFiles = new Set(allLinks.map(link => link.sourceFile)).size;
-      this.indexStatus.indexedFiles = 0;
+      // First pass: extract all link references from all documents
+      await this.buildGlobalLinkReferences();
+
+      console.log('Building index - Phase 2: Parsing links...');
+
+      // Second pass: find all links using the global references
+      const allLinks = await LinkParser.findAllLinksWithReferences(this.globalLinkReferences);
 
       // Process each link
-      for (const link of allLinks) {
+      for (let i = 0; i < allLinks.length; i++) {
+        const link = allLinks[i];
         this.addLinkToIndex(link);
 
-        // Update progress
-        const indexedFiles = new Set(Array.from(this.forwardLinks.keys())).size;
-        if (indexedFiles > this.indexStatus.indexedFiles) {
-          this.indexStatus.indexedFiles = indexedFiles;
-          this._onIndexUpdated.fire(); // Progress update
+        // Update progress every 10 files to avoid too many events
+        if (i % 10 === 0) {
+          this.indexStatus.indexedFiles = Math.min(i + 1, allLinks.length);
+          this._onIndexUpdated.fire();
         }
       }
 
       // Finalize
       this.indexStatus.isBuilding = false;
       this.indexStatus.lastBuildTime = new Date();
-      this.indexStatus.indexedFiles = this.indexStatus.totalFiles;
+      this.indexStatus.indexedFiles = allLinks.length;
+      this.indexStatus.totalFiles = new Set(allLinks.map(link => link.sourceFile)).size;
 
-      // Notify that indexing is complete
-      this._onIndexUpdated.fire();
+      console.log(`Index built successfully: ${allLinks.length} links, ${this.indexStatus.totalFiles} files`);
 
-      console.log(`Link index built with ${allLinks.length} links across ${this.indexStatus.totalFiles} files`);
+      // Ensure final state is propagated
+      this._onIndexUpdated.fire(); // Final notification
     } catch (error) {
-      this.indexStatus.isBuilding = false;
       console.error('Error building link index:', error);
+      this.indexStatus.isBuilding = false;
       throw error;
+    } finally {
+      this.indexStatus.isBuilding = false; // Ensure flag is cleared even on error
     }
   }
+
 
   /**
    * Add a link to the index
@@ -131,6 +145,11 @@ export class LinkIndexManager {
    * @param document The document to parse
    */
   async updateLinksForFile(filePath: string, document?: vscode.TextDocument): Promise<void> {
+    if (this.indexStatus.isBuilding) {
+      // During global build, skip individual updates to avoid recursion
+      return;
+    }
+
     try {
       const normalizedPath = this.normalizePath(filePath);
 
@@ -142,8 +161,23 @@ export class LinkIndexManager {
       // Remove existing links for this file
       this.removeLinksForFile(normalizedPath);
 
-      // Parse and add new links
-      const links = LinkParser.parseDocumentLinks(document);
+      // Remove old references from this file
+      this.globalLinkReferences.removeReferencesFromFile(document.uri.fsPath);
+
+      // Update link references from this document
+      const fileReferences = LinkParser.extractLinkReferencesFromDocument(document);
+
+      // Add new references from this file
+      for (const [name, reference] of fileReferences) {
+        const enhancedReference: LinkReference = {
+          ...reference,
+          sourceFile: document.uri.fsPath
+        };
+        this.globalLinkReferences.addReference(enhancedReference);
+      }
+
+      // Parse and add new links using current global references
+      const links = LinkParser.parseDocumentLinksWithReferences(document, this.globalLinkReferences);
 
       // Track affected target files to notify about backlink changes
       const affectedTargets = new Set<string>();
@@ -207,6 +241,9 @@ export class LinkIndexManager {
 
       // Remove from forward links
       this.forwardLinks.delete(normalizedPath);
+
+      // Remove link references from this file
+      this.globalLinkReferences.removeReferencesFromFile(filePath);
 
       // Notify about backlink changes
       affectedTargets.forEach(targetFile => {
@@ -281,6 +318,47 @@ export class LinkIndexManager {
   hasFile(filePath: string): boolean {
     const normalizedPath = this.normalizePath(filePath);
     return this.forwardLinks.has(normalizedPath) || this.backlinks.has(normalizedPath);
+  }
+
+  /**
+   * Get global link references
+   */
+  getGlobalLinkReferences(): GlobalLinkReferences {
+    return this.globalLinkReferences;
+  }
+
+  /**
+   * Build global link references from all markdown files
+   */
+  private async buildGlobalLinkReferences(): Promise<void> {
+    try {
+      // Get all markdown files
+      const mdFiles = await FileUtils.getMarkdownFiles();
+
+      for (const fileUri of mdFiles) {
+        try {
+          const document = await vscode.workspace.openTextDocument(fileUri);
+          const fileReferences = LinkParser.extractLinkReferencesFromDocument(document);
+
+          // Add to global references
+          for (const [name, reference] of fileReferences) {
+            // 添加来源文件信息
+            const enhancedReference: LinkReference = {
+              ...reference,
+              sourceFile: document.uri.fsPath
+            };
+            this.globalLinkReferences.addReference(enhancedReference);
+          }
+        } catch (error) {
+          console.error(`Error extracting references from ${fileUri.fsPath}:`, error);
+        }
+      }
+
+      const stats = (this.globalLinkReferences as GlobalLinkReferencesImpl).getStats();
+      console.log(`Built global link references: ${stats.totalReferences} references, ${stats.conflicts} conflicts`);
+    } catch (error) {
+      console.error('Error building global link references:', error);
+    }
   }
 
   /**

@@ -49,17 +49,16 @@ export function activate(context: vscode.ExtensionContext) {
         // 设置扩展状态
         vscode.commands.executeCommand('setContext', 'lkap.enabled', true);
 
-        // 开始构建链接索引
+        // 开始构建链接索引 - 使用异步不阻塞激活
         if (vscode.workspace.getConfiguration('lkap').get<boolean>('enableIndexing', true)) {
-            // 在后台构建索引，不阻塞扩展激活
-            setTimeout(async () => {
+            (async () => {
                 try {
                     await linkManager.buildIndex();
-                    console.log('Link index built successfully');
+                    console.log('Initial link index built successfully');
                 } catch (error) {
-                    console.error('Error building link index:', error);
+                    console.error('Initial link index build error:', error);
                 }
-            }, 1000);
+            })();
         }
 
         // 验证命令是否已注册
