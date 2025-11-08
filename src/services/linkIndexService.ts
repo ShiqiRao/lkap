@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { FileUtils } from '../utils/fileUtils';
 import { LinkParser } from '../utils/linkUtils';
+import { LinkResolver } from './linkResolver';
 import {
   LinkIndex,
   FileIndex,
@@ -24,6 +25,7 @@ export class LinkIndexService implements vscode.Disposable {
   private context: vscode.ExtensionContext;
   private lastBuildTime: number = 0;
   private watcher: vscode.FileSystemWatcher | null = null;
+  private linkResolver: LinkResolver | null = null;
 
   /**
    * Initialize LinkIndexService
@@ -92,7 +94,7 @@ export class LinkIndexService implements vscode.Disposable {
 
       let totalLinks = 0;
 
-      // Process each markdown file
+      // FIRST PASS: Read all files and parse links (without resolving)
       for (let i = 0; i < markdownFiles.length; i++) {
         const fileUri = markdownFiles[i];
         const filePath = fileUri.fsPath;
@@ -127,22 +129,6 @@ export class LinkIndexService implements vscode.Disposable {
           newIndex.files.set(filePath, fileIndex);
           totalLinks += parseResult.links.length;
 
-          // Update backlinks: for each outgoing link, add reverse mapping
-          for (const link of parseResult.links) {
-            if (link.targetFile) {
-              // Resolve the target file path
-              const targetPath = this.resolveLinkTarget(link.targetFile, notesPath);
-
-              if (!newIndex.backlinks.has(targetPath)) {
-                newIndex.backlinks.set(targetPath, new Set<string>());
-              }
-              const backlinkSet = newIndex.backlinks.get(targetPath);
-              if (backlinkSet) {
-                backlinkSet.add(filePath);
-              }
-            }
-          }
-
           // Update tags map
           for (const tag of parseResult.tags) {
             if (!newIndex.tags.has(tag)) {
@@ -158,6 +144,42 @@ export class LinkIndexService implements vscode.Disposable {
           // Continue processing other files
         }
       }
+
+      // SECOND PASS: Resolve all links and populate backlinks map
+      this.linkResolver = new LinkResolver(newIndex);
+      let resolvedCount = 0;
+      let backlinkCount = 0;
+      let totalLinksFound = 0;
+
+      for (const fileIndex of newIndex.files.values()) {
+        totalLinksFound += fileIndex.outgoingLinks.length;
+        for (let i = 0; i < fileIndex.outgoingLinks.length; i++) {
+          const link = fileIndex.outgoingLinks[i];
+
+          // Resolve the link to a target file
+          const resolution = this.linkResolver.resolveLink(link, fileIndex.path);
+
+          // Update the link with resolved target
+          fileIndex.outgoingLinks[i] = resolution.link;
+
+          // Add backlink if target file exists
+          if (resolution.targetFile) {
+            resolvedCount++;
+            if (!newIndex.backlinks.has(resolution.targetFile)) {
+              newIndex.backlinks.set(resolution.targetFile, new Set<string>());
+            }
+            const backlinkSet = newIndex.backlinks.get(resolution.targetFile);
+            if (backlinkSet) {
+              backlinkSet.add(fileIndex.path);
+              backlinkCount++;
+            }
+          }
+        }
+      }
+
+      console.log(`Total links found: ${totalLinksFound}`);
+      console.log(`Resolved ${resolvedCount} links, created ${backlinkCount} backlink entries`);
+      console.log(`Backlinks map has ${newIndex.backlinks.size} target files`);
 
       // Update metadata
       newIndex.metadata.totalFiles = newIndex.files.size;
@@ -258,15 +280,26 @@ export class LinkIndexService implements vscode.Disposable {
         }
         this.index.metadata.totalLinks += parseResult.links.length;
 
-        // Add new backlinks
-        for (const link of parseResult.links) {
-          if (link.targetFile) {
-            const targetPath = this.resolveLinkTarget(link.targetFile, notesPath);
+        // Resolve links and add new backlinks
+        if (!this.linkResolver) {
+          this.linkResolver = new LinkResolver(this.index);
+        }
 
-            if (!this.index.backlinks.has(targetPath)) {
-              this.index.backlinks.set(targetPath, new Set<string>());
+        for (let i = 0; i < fileIndex.outgoingLinks.length; i++) {
+          const link = fileIndex.outgoingLinks[i];
+
+          // Resolve the link to a target file
+          const resolution = this.linkResolver.resolveLink(link, fileIndex.path);
+
+          // Update the link with resolved target
+          fileIndex.outgoingLinks[i] = resolution.link;
+
+          // Add backlink if target file exists
+          if (resolution.targetFile) {
+            if (!this.index.backlinks.has(resolution.targetFile)) {
+              this.index.backlinks.set(resolution.targetFile, new Set<string>());
             }
-            const backlinkSet = this.index.backlinks.get(targetPath);
+            const backlinkSet = this.index.backlinks.get(resolution.targetFile);
             if (backlinkSet) {
               backlinkSet.add(filePath);
             }
@@ -423,20 +456,6 @@ export class LinkIndexService implements vscode.Disposable {
       enableWikilinks: true,
       enableMarkdownLinks: true
     });
-  }
-
-  /**
-   * Resolve a link target to an absolute file path
-   * @param linkTarget The link target (e.g., "my-note.md" or "My Note")
-   * @param baseNotesPath The base notes directory path
-   * @returns Absolute path to the target file, or the link target as-is
-   */
-  private resolveLinkTarget(linkTarget: string, baseNotesPath: string): string {
-    // Normalize the link target
-    const normalized = LinkParser.normalizeLinkTarget(linkTarget);
-
-    // Resolve to absolute path
-    return path.resolve(baseNotesPath, normalized);
   }
 
   /**

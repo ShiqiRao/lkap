@@ -55,6 +55,26 @@
         "command": "lkap.openNote",
         "title": "Open Note",
         "category": "LKAP"
+      },
+      {
+        "command": "lkap.goToLink",
+        "title": "Go to Linked Note",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.createFromLink",
+        "title": "Create Note from Link",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.validateLinks",
+        "title": "Validate All Links",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.rebuildIndex",
+        "title": "Rebuild Link Index",
+        "category": "LKAP"
       }
     ],
     "keybindings": [
@@ -63,6 +83,12 @@
         "key": "ctrl+shift+t",
         "mac": "cmd+shift+t",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "lkap.goToLink",
+        "key": "f12",
+        "mac": "f12",
+        "when": "editorTextFocus && editorLangId == markdown"
       }
     ],
     "configuration": {

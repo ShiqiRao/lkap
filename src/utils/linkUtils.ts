@@ -75,6 +75,16 @@ export class LinkParser {
               continue;
             }
 
+            // Skip anchor-only links (e.g., (#), (#section))
+            if (target.startsWith('#')) {
+              continue;
+            }
+
+            // Skip external URLs (http://, https://, etc.)
+            if (/^https?:\/\//i.test(target) || /^mailto:/i.test(target)) {
+              continue;
+            }
+
             const normalizedTarget = this.normalizeLinkTarget(target);
             const range = this.getMatchRange(content, match);
 

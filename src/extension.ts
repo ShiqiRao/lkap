@@ -3,6 +3,11 @@ import { registerDailyNoteCommands } from './commands/dailyNote';
 import { LinkIndexService } from './services/linkIndexService';
 import { LinkResolver } from './services/linkResolver';
 import { BacklinksProvider } from './services/backlinksProvider';
+import { registerLinkNavigationCommand } from './commands/linkNavigation';
+import { registerQuickLinkCreateCommand } from './commands/quickLinkCreate';
+import { registerBacklinksViewProvider } from './views/backlinksView';
+import { registerTagsViewProvider } from './views/tagsView';
+import { registerLinkHoverProvider } from './providers/linkHoverProvider';
 
 /**
  * 扩展激活函数
@@ -76,15 +81,91 @@ export async function activate(context: vscode.ExtensionContext) {
             })
         );
 
-        // 10. Store service references in context for Phase 2 features
-        // These will be accessible to commands that need to interact with the index
-        context.subscriptions.push({
-            linkIndexService,
-            linkResolver,
-            backlinksProvider
-        } as any);
+        // 10. Register Phase 2 features: Link Navigation & UI
+        console.log('Registering Phase 2 features...');
 
-        console.log('Link Knowledge And Plan extension activated successfully with bidirectional linking!');
+        // Register link navigation command (lkap.goToLink)
+        registerLinkNavigationCommand(context, linkResolver);
+        console.log('Link navigation command registered');
+
+        // Register quick link creation command (lkap.createFromLink)
+        registerQuickLinkCreateCommand(context, linkIndexService);
+        console.log('Quick link creation command registered');
+
+        // Register backlinks view provider
+        registerBacklinksViewProvider(context, backlinksProvider, linkIndexService);
+        console.log('Backlinks view provider registered');
+
+        // Register tags view provider
+        registerTagsViewProvider(context, linkIndexService);
+        console.log('Tags view provider registered');
+
+        // Register link hover provider
+        registerLinkHoverProvider(context, linkResolver, linkIndexService);
+        console.log('Link hover provider registered');
+
+        // Register configuration commands
+        // Command: Validate all links
+        context.subscriptions.push(
+            vscode.commands.registerCommand('lkap.validateLinks', async () => {
+                try {
+                    const validation = backlinksProvider.validateLinks();
+                    const channel = vscode.window.createOutputChannel('LKAP Link Validation');
+
+                    channel.clear();
+                    channel.appendLine('=== Link Validation Report ===\n');
+                    channel.appendLine(`Total links: ${validation.valid + validation.broken}`);
+                    channel.appendLine(`Valid links: ${validation.valid}`);
+                    channel.appendLine(`Broken links: ${validation.broken}\n`);
+
+                    if (validation.broken > 0) {
+                        channel.appendLine('Broken links:');
+                        for (const detail of validation.details) {
+                            channel.appendLine(`  ${detail.source} -> ${detail.target}`);
+                        }
+                    } else {
+                        channel.appendLine('All links are valid! ✓');
+                    }
+
+                    channel.show();
+
+                    if (validation.broken > 0) {
+                        vscode.window.showWarningMessage(
+                            `Found ${validation.broken} broken link(s). Check output for details.`
+                        );
+                    } else {
+                        vscode.window.showInformationMessage('All links are valid!');
+                    }
+                } catch (error) {
+                    console.error('Failed to validate links:', error);
+                    vscode.window.showErrorMessage(
+                        `Failed to validate links: ${error instanceof Error ? error.message : String(error)}`
+                    );
+                }
+            })
+        );
+
+        // Command: Rebuild index manually
+        context.subscriptions.push(
+            vscode.commands.registerCommand('lkap.rebuildIndex', async () => {
+                try {
+                    await linkIndexService.rebuildIndex(true); // true = show progress
+                    const stats = linkIndexService.getStats();
+                    vscode.window.showInformationMessage(
+                        `Index rebuilt: ${stats.totalFiles} files, ${stats.totalLinks} links, ${stats.totalTags} tags`
+                    );
+                } catch (error) {
+                    console.error('Failed to rebuild index:', error);
+                    vscode.window.showErrorMessage(
+                        `Failed to rebuild index: ${error instanceof Error ? error.message : String(error)}`
+                    );
+                }
+            })
+        );
+
+        console.log('Configuration commands registered');
+
+        console.log('Link Knowledge And Plan extension activated successfully with Phase 2 features!');
 
     } catch (error) {
         console.error('Failed to activate Link Knowledge And Plan extension:', error);

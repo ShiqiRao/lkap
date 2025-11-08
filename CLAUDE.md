@@ -176,3 +176,5 @@ These are currently frameworks for Phase 2+ features.
 3. **Build errors**: Check `npm run lint` output first
 4. **Sourcemaps missing**: Ensure running `npm run compile` not `npm run build-production`
 5. **Template variables not working**: Verify variable names match `dateUtils.ts` substitution map
+- Do not execute or plan multiple tasks at once, even if you see a document containing several phases or steps.
+- use ARCHITECTURE_LINKING.md as development guidance
