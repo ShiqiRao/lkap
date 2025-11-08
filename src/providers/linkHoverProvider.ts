@@ -64,7 +64,7 @@ export class LinkHoverProvider implements vscode.HoverProvider {
 
         // Add clickable "Open" button
         const openCommand = this.createOpenFileCommand(resolution.targetFile);
-        md.appendMarkdown(`[$(arrow-small-right) Open](${openCommand})`);
+        md.appendMarkdown(`[➡️ Open](${openCommand})`);
       } else {
         // Target doesn't exist
         md.appendMarkdown(`**${link.displayText}**\n\n`);
