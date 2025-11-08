@@ -91,9 +91,23 @@ export class FileUtils {
    * 获取所有 Markdown 文件
    */
   static async getMarkdownFiles(searchPath?: string): Promise<vscode.Uri[]> {
-    const pattern = searchPath ? `${searchPath}/**/*.md` : '**/*.md';
+    let pattern: string;
+
+    if (searchPath) {
+      // Convert absolute path to relative glob pattern
+      if (path.isAbsolute(searchPath)) {
+        const relativePath = this.getRelativePath(searchPath);
+        // Use empty string if relative path is empty (searching from root)
+        pattern = relativePath ? `${relativePath}/**/*.md` : '**/*.md';
+      } else {
+        pattern = `${searchPath}/**/*.md`;
+      }
+    } else {
+      pattern = '**/*.md';
+    }
+
     const excludePattern = '**/node_modules/**';
-    
+
     return await vscode.workspace.findFiles(
       pattern,
       excludePattern
