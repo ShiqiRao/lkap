@@ -55,6 +55,26 @@
         "command": "lkap.openNote",
         "title": "Open Note",
         "category": "LKAP"
+      },
+      {
+        "command": "lkap.goToLink",
+        "title": "Go to Linked Note",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.createFromLink",
+        "title": "Create Note from Link",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.validateLinks",
+        "title": "Validate All Links",
+        "category": "LKAP"
+      },
+      {
+        "command": "lkap.rebuildIndex",
+        "title": "Rebuild Link Index",
+        "category": "LKAP"
       }
     ],
     "keybindings": [
@@ -63,6 +83,12 @@
         "key": "ctrl+shift+t",
         "mac": "cmd+shift+t",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "lkap.goToLink",
+        "key": "f12",
+        "mac": "f12",
+        "when": "editorTextFocus && editorLangId == markdown"
       }
     ],
     "configuration": {
@@ -124,12 +150,15 @@
     "watch": "node esbuild.js --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node scripts/test-commands.js",
+    "test": "npm run test:commands && npm run test:unit",
+    "test:commands": "node scripts/test-commands.js",
+    "test:unit": "node scripts/run-tests.js",
     "vsce:package": "vsce package",
     "publish": "vsce publish",
     "prepare-publish": "node scripts/prepare-publish.js"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.1",
     "@types/moment": "^2.13.0",
     "@types/node": "16.x",
     "@types/vscode": "^1.74.0",
@@ -139,6 +168,7 @@
     "@vscode/vsce": "^2.15.0",
     "esbuild": "^0.25.7",
     "eslint": "^8.28.0",
+    "mocha": "^10.2.0",
     "typescript": "^4.9.4"
   },
   "dependencies": {
