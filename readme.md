@@ -16,6 +16,20 @@ A powerful VSCode extension for managing Markdown notes with daily note creation
 - Smart template system with variable substitution
 - Opens existing notes directly if they already exist
 
+#### 🔗 Bidirectional Linking
+- **Wiki-style links**: `[[note-name]]` syntax
+- **Link navigation**: Press `F12` to jump to linked notes
+- **Link hover preview**: Hover over links to see file preview
+- **Quick link creation**: Create missing notes from unresolved links
+- **Backlinks view**: See all files linking to current file in sidebar
+- Real-time index updates as you edit
+
+#### 🏷️ Tag Management
+- **Tag parsing**: Automatically extracts `#tags` from notes
+- **Tags view**: Sidebar shows all tags with usage counts
+- **Tag navigation**: Click tags to see which files use them
+- Hierarchical tag display with file grouping
+
 ### 🔧 Configuration Options
 
 Search for "lkap" in VSCode settings to find the following configuration options:
@@ -33,6 +47,21 @@ Search for "lkap" in VSCode settings to find the following configuration options
 1. **Method 1**: Use shortcut `Ctrl+Shift+T` (Windows/Linux) or `Cmd+Shift+T` (Mac)
 2. **Method 2**: Open command palette (`Ctrl+Shift+P`), type "Create Today's Note"
 3. The extension will automatically create today's note file in the configured notes directory
+
+### Using Links
+
+1. **Create a link**: Type `[[note-name]]` in your markdown file
+2. **Navigate to link**: Place cursor on link and press `F12`
+3. **Preview link**: Hover over any link to see a preview
+4. **Create missing note**: Click "Create Note" when hovering over unresolved links
+5. **View backlinks**: Check the Backlinks panel in the sidebar to see which notes link to the current file
+
+### Working with Tags
+
+1. **Add tags**: Type `#tag-name` anywhere in your note
+2. **View all tags**: Check the Tags panel in the sidebar
+3. **Find tagged notes**: Click on a tag to expand and see all files using it
+4. Tags are automatically indexed as you type
 
 ### Custom Templates
 
@@ -93,30 +122,29 @@ src/
 
 ## 🗓️ Development Roadmap
 
-### Phase 1: Basic Features ✅
+### Phase 1: Basic Features ✅ Complete
 - [x] Project setup and environment configuration
 - [x] Quick daily note creation feature
-- [ ] Basic bidirectional linking support
-- [ ] Simple tag parsing
-- [ ] Basic indexing system design
-- [ ] File discovery and parser implementation
+- [x] Basic bidirectional linking support
+- [x] Simple tag parsing
+- [x] Basic indexing system design
+- [x] File discovery and parser implementation
 
-### Phase 2: Core Features (In Progress)
-- [ ] Link auto-completion and navigation
-- [ ] Backlink display
-- [ ] Tag tree view
-- [ ] Configuration management interface
-- [ ] Complete index manager implementation
-- [ ] Incremental index updates
-- [ ] Index persistence and caching
+### Phase 2: Core Features ✅ Complete
+- [x] Link auto-completion and navigation
+- [x] Backlink display in sidebar
+- [x] Tag tree view with file grouping
+- [x] Configuration management commands
+- [x] Complete index manager implementation
+- [x] Real-time index updates
+- [x] Link hover preview
 
 ### Phase 3: Advanced Features (Planned)
-- [ ] Link preview and hover display
-- [ ] Tag batch operations
-- [ ] Template system
-- [ ] Search and filtering
-- [ ] Index performance optimization
-- [ ] Concurrent processing and memory management
+- [ ] Incremental index updates with file watcher
+- [ ] Index persistence and caching
+- [ ] Graph visualization of note connections
+- [ ] Advanced search and filtering
+- [ ] Performance optimization for large libraries
 - [ ] Index integrity validation
 
 ### Phase 4: Optimization and Release (Planned)
