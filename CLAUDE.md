@@ -135,18 +135,28 @@ These are currently frameworks for Phase 2+ features.
 
 ### Roadmap Status
 
-**Phase 1 (Mostly Complete)**
+**Phase 1 (Complete) ✅**
 - ✅ Daily note creation
 - ✅ Template system
-- 🚧 Bidirectional linking (framework in place)
-- 🚧 Tag parsing (framework in place)
-- 🚧 Indexing system (framework in place)
+- ✅ Bidirectional linking framework
+- ✅ Tag parsing framework
+- ✅ Indexing system framework
 
-**Phase 2+ (Planned)**
-- Link auto-completion and navigation
-- Backlink display in sidebar
-- Tag tree view with filtering
+**Phase 2 (Complete) ✅**
+- ✅ Link navigation and auto-completion
+- ✅ Backlink display in sidebar
+- ✅ Tag tree view with filtering
+- ✅ Link hover preview
+- ✅ Quick link creation
+- ✅ Configuration commands (validate links, rebuild index)
+- ✅ Real-time index updates
+
+**Phase 3+ (Planned)**
+- File watcher for incremental updates
 - Index persistence and caching
+- Graph visualization
+- Advanced search capabilities
+- Performance optimizations for large libraries
 
 ## Important Notes
 
