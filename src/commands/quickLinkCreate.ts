@@ -41,7 +41,7 @@ export function registerQuickLinkCreateCommand(
 
         // Ensure notes directory exists
         try {
-          await FileUtils.ensureDir(notesDir);
+          await FileUtils.ensureDirectory(notesDir);
         } catch (error) {
           console.error('Failed to create notes directory:', error);
           throw new Error(`Failed to create notes directory: ${error}`);
