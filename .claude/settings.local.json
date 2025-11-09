@@ -8,9 +8,9 @@
       "Bash(npm run pretest:*)",
       "Bash(npm run lint:*)"
     ],
-    "deny": [
+    "deny": [],
+    "ask": [
       "Bash(git:*)"
-    ],
-    "ask": []
+    ]
   }
 }
