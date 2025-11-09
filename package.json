@@ -2,7 +2,7 @@
   "name": "lkap",
   "displayName": "Link Knowledge And Plan (LKAP)",
   "description": "A powerful VSCode extension for managing Markdown notes with daily note creation, bidirectional linking, and tag management",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "ShiqiRao",
   "author": {
     "name": "ShiqiRao"
